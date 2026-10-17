@@ -54,36 +54,33 @@ numbers.addEventListener("click",(event)=>{
 	input.value = input.value === "0" ? event.target.textContent : input.value + event.target.textContent;
 })
 operators.addEventListener("click",(event)=>{
-	if (event.target === operators) return;
+if (event.target === operators) return;
 	const key = event.target.textContent;
-	const isEquals = key === "=";
-	if (!user_entered && !isEquals) {
-    		calculator.operator = key;
+		const isEquals = key === "=";
+		if (!user_entered && !isEquals) {
+		calculator.operator = key;
 		return;
-	}
-	let display;
-	let current_value = input.value;
-	if (calculator.operator !== undefined){
-		const rhs = Number(current_value);
-    		calculator.last_rule = [calculator.operator, rhs];
-		current_value = operator(Number(calculator.stored_value),calculator.operator,Number(current_value));
-	}else if (isEquals && calculator.last_rule) {
-    		current_value = operator(Number(current_value), ...calculator.last_rule);
-	}
-	if (isEquals) {
-   		 calculator.operator = undefined;
-		 if (Number.isInteger(current_value)) calculator.not_decimal = true;
-		 else  calculator.not_decimal = false;
-		 input.value = current_value;
-		 } else {
-		user_entered = false;
-		calculator.not_decimal = true;
-    		calculator.stored_value = current_value;
-    		calculator.operator = key;
-    		calculator.last_rule = undefined;
-		input.value = "0";
-	}
-
+		}
+		let current_value = Number(input.value);
+		if (calculator.operator !== undefined){
+			calculator.last_rule = [calculator.operator, current_value];
+			current_value = operator(Number(calculator.stored_value),calculator.operator,current_value);
+		}else if (isEquals && calculator.last_rule) {
+			current_value = operator(current_value, ...calculator.last_rule);
+		}
+		if (isEquals) {
+			calculator.operator = undefined;
+			if (Number.isInteger(current_value)) calculator.not_decimal = true;
+			else  calculator.not_decimal = false;
+			input.value = current_value;
+		} else {
+			user_entered = false;
+			calculator.not_decimal = true;
+			calculator.stored_value = current_value;
+			calculator.operator = key;
+			calculator.last_rule = undefined;
+			input.value = "0";
+		}
 })
 special_operators.addEventListener("click",(event) =>{
 	if (event.target === special_operators) return;
