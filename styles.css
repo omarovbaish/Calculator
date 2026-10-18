@@ -70,3 +70,14 @@ gap: 16px;
   display: grid;
   grid-template-rows: subgrid;
 }
+.set_precision{
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  width: fit-content;
+  font-size: 2rem;
+  padding: 1em;
+}
+input,button{
+  font: inherit;
+}

@@ -10,16 +10,41 @@ function multiply(a,b){
 function divide(a,b){
 	return a / b;
 }
+//This works. Second number just ignored.
+function square_root(a){
+	return a ** (1/2);
+}
+//This works. Second number just ignored.
+function percent(a){
+	return a/100;
+}
 const operations = {
 	"*" : multiply,
 	"/" : divide,
 	"+" : add,
 	"-" : subtract,
+	"√x" : square_root,
+	"%" : percent,
 }
 function operator(first_number,operator,third_number){
-	if (operator === "/" && third_number === 0) return "Zero divide error"
-	return operations[operator](first_number,third_number);
+	if (operator === "/" && third_number === 0) {
+		error = true;
+		return 	"Zero divide error. Press AC";
+	}else if (operator === "√x" && first_number < 0){
+		error = true;
+		return 	"Negative square root error. Press AC";
+	}
+	return convert_to_precision(precision,operations[operator](first_number,third_number));
 }
+function convert_to_precision(precision_digits,number){
+	//Works only to certain range. Approx 21 and -21 in exp form. 
+	//If range is exceeded function shall do nothing. 
+	return Number(number.toFixed(precision_digits));
+}
+//May be be overguard.
+// But this ensures that if js file defers too much we will not start with wrong value.
+//Be sure to sync html and js files about this.
+let precision = 9;
 const calculator = document.querySelector(".calculator");
 calculator.operator = undefined;
 calculator.last_rule = undefined;
@@ -30,10 +55,15 @@ const input = document.querySelector(".input");
 const special_operators = document.querySelector(".special-operators");
 const decimal = document.querySelector("#decimal");
 const backspace = document.querySelector("#backspace");
+const form_precision = document.querySelector(".set_precision");
+const input_precision = document.querySelector("#setting_precision");
 input.value = "0";
+let error = false;
 let waiting_for_number = true; //Initially we do wating for number
+//Design choice - 4. or 4.0 shall be treated as 4 so are 4.000 and so on
+//Calculator implementation does not commit to preseriving decimal notation after operation(for example 1.0 * 1.0) either. 
 numbers.addEventListener("click",(event)=>{
-	if (event.target === numbers) return;
+	if (event.target === numbers || error) return;
 	if (event.target.textContent === "+/-"){
 		const negative_number = Number(input.value) * -1;
 		input.value = negative_number;
@@ -59,7 +89,7 @@ numbers.addEventListener("click",(event)=>{
 	input.value = input.value === "0" ? event.target.textContent : input.value + event.target.textContent;
 })
 operators.addEventListener("click",(event)=>{
-	if (event.target === operators) return;
+	if (event.target === operators || error) return;
 	const key = event.target.textContent;
 	const isEquals = key === "=";
 	 //Just change operator. We are waiting.
@@ -89,7 +119,8 @@ operators.addEventListener("click",(event)=>{
 		//Compute with last_rule
 		input.value = operator(Number(input.value),...calculator.last_rule);
 		//Do not save operator or result.
-		//Also we allow typing to = result.This behavior is aligned with previous version.
+		//Also we allow typing to = result. This behavior is arguably more powerful tool we are giving to user's disposal.
+		//Warning - this behavior is not conventional.
 		return;
 	}
 	calculator.stored_value = Number(input.value);
@@ -97,30 +128,32 @@ operators.addEventListener("click",(event)=>{
 	waiting_for_number = true; //We wait for second number
 })
 special_operators.addEventListener("click",(event) =>{
-	if (event.target === special_operators) return;
+	if (event.target === special_operators || error) return;
 	if (event.target.textContent === "AC"){
 		calculator.stored_value = undefined;
 		calculator.last_rule = undefined;
 		calculator.operator = undefined;
 		input.value = "0";
 		waiting_for_number = true;
-	}
-	if (event.target.textContent === "√x"){
-		const number = Number(input.value) ** (1/2);
-		input.value = number;
-		if (waiting_for_number && calculator.stored_value !== undefined) 
-			calculator.stored_value = number;
-	}
-	if (event.target.textContent === "%"){
-		const number = Number(input.value) / 100;
+		error = false;
+	}else{
+		//Centralize logic. Give decision to be made to operator
+		//Html must sync with operations. Ensure.
+		const number = operator(Number(input.value),event.target.textContent);
 		input.value = number;
 		if (waiting_for_number && calculator.stored_value !== undefined) 
 			calculator.stored_value = number;
 	}
 })
 backspace.addEventListener("click",()=>{
+	if(error) return;
 	if (waiting_for_number) return //Handles cases like 5 + backspace
 	let new_value = input.value.slice(0,input.value.length - 1) || "0";
 	if (new_value === "-") new_value = 0;
 	input.value = new_value;
+})
+form_precision.addEventListener("submit",(e)=>{
+	//Added just for native html validation - see HTML
+	e.preventDefault();
+	precision = input_precision.value;
 })
