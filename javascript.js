@@ -59,6 +59,7 @@ const form_precision = document.querySelector(".set_precision");
 const input_precision = document.querySelector("#setting_precision");
 input.value = "0";
 let error = false;
+input.inert = true; //Do not allow user to interact with it. Combined with readonly and disabled for safety.
 let waiting_for_number = true; //Initially we do wating for number
 //Design choice - 4. or 4.0 shall be treated as 4 so are 4.000 and so on
 //Calculator implementation does not commit to preseriving decimal notation after operation(for example 1.0 * 1.0) either. 
