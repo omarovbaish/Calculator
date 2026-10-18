@@ -128,7 +128,7 @@ operators.addEventListener("click",(event)=>{
 	waiting_for_number = true; //We wait for second number
 })
 special_operators.addEventListener("click",(event) =>{
-	if (event.target === special_operators || error) return;
+	if (event.target === special_operators) return;
 	if (event.target.textContent === "AC"){
 		calculator.stored_value = undefined;
 		calculator.last_rule = undefined;
@@ -137,6 +137,7 @@ special_operators.addEventListener("click",(event) =>{
 		waiting_for_number = true;
 		error = false;
 	}else{
+		if (error) return; //AC must come before error checking.
 		//Centralize logic. Give decision to be made to operator
 		//Html must sync with operations. Ensure.
 		const number = operator(Number(input.value),event.target.textContent);
